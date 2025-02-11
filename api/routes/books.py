@@ -48,6 +48,22 @@ async def get_books() -> OrderedDict[int, Book]:
     return db.get_books()
 
 
+@router.get("/{book_id}", response_model=Book, status_code=status.HTTP_200_OK)
+async def get_book(book_id: int) -> Book:
+    try:
+        if book_id not in db.get_books():
+            raise KeyError
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content=db.get_book(book_id).model_dump(),
+        )
+    except KeyError:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"detail": "Book not found"}
+        )
+
+
 @router.put("/{book_id}", response_model=Book, status_code=status.HTTP_200_OK)
 async def update_book(book_id: int, book: Book) -> Book:
     return JSONResponse(
@@ -58,5 +74,11 @@ async def update_book(book_id: int, book: Book) -> Book:
 
 @router.delete("/{book_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_book(book_id: int) -> None:
-    db.delete_book(book_id)
-    return JSONResponse(status_code=status.HTTP_204_NO_CONTENT, content=None)
+    try:
+        db.delete_book(book_id)
+        return JSONResponse(status_code=status.HTTP_204_NO_CONTENT, content=None)
+    except KeyError:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"detail": "Book not found"}
+        )
