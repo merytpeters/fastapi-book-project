@@ -1,13 +1,10 @@
 name: CI Pipeline
 
 on:
-  on:
   push:
-    branches:
-      - feature/book-by-id-api
+    branches: [ "feature/book-by-id-api" ]
   pull_request:
-    branches:
-      - feature/book-by-id-api
+    branches: [ "feature/book-by-id-api" ]
 
 jobs:
   setup:
