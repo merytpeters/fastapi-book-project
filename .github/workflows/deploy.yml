@@ -17,7 +17,7 @@ jobs:
       uses: docker/setup-buildx-action@v1
 
     - name: Log in to Heroku Container Registry
-      uses: akshnz/heroku-docker-login@v1
+      uses: merytpeters/heroku-docker-login@v1
       with:
         heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
 
