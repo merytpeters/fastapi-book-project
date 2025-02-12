@@ -20,8 +20,7 @@ COPY . .
 COPY ./fastapinginx.conf /etc/nginx/nginx.conf
 
 # Expose the port the app runs on
-EXPOSE 8000
-EXPOSE 80
+EXPOSE $PORT
 
 # Command to run the app
 CMD ["sh", "-c", "service nginx start && uvicorn main:app --host 0.0.0.0 --port 8000"]
