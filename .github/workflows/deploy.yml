@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy to Heroku
 
 on:
   push:
@@ -10,31 +10,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
 
-      - name: Login to Amazon ECR
-        run: |
-          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin <aws_account_id>.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+    - name: Log in to Heroku Container Registry
+      uses: akshnz/heroku-docker-login@v1
+      with:
+        heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
 
-      - name: Build and Push Docker Image
-        run: |
-          docker build -t fastapi-book-project .
-          docker tag fastapi-book-project:latest <aws_account_id>.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/fastapi-book-project:latest
-          docker push <aws_account_id>.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/fastapi-book-project:latest
+    - name: Build and Push Docker image to Heroku
+      run: |
+        docker build -t registry.heroku.com/${{ secrets.HEROKU_APP_NAME }}/web .
+        docker push registry.heroku.com/${{ secrets.HEROKU_APP_NAME }}/web
 
-      - name: Deploy to EC2 (or Elastic Beanstalk)
-        run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@your-ec2-public-ip << 'EOF'
-            docker pull <aws_account_id>.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/fastapi-book-project:latest
-            docker stop fastapi-container || true
-            docker rm fastapi-container || true
-            docker run -d -p 8000:8000 --name fastapi-container <aws_account_id>.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/fastapi-book-project:latest
-          EOF
+    - name: Release the app on Heroku
+      run: |
+        heroku container:release web --app ${{ secrets.HEROKU_APP_NAME }}
