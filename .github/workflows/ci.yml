@@ -1,10 +1,9 @@
 name: CI Pipeline
 
 on:
-  push:
-    branches: [ "feature/book-by-id-api" ]
   pull_request:
-    branches: [ "feature/book-by-id-api" ]
+    branches:
+      - feature/book-by-id-api
 
 jobs:
   setup:
@@ -20,19 +19,43 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install Dependencies
+      - name: Create and Activate Virtual Environment
         run: |
+          python -m venv venv
+          source venv/bin/activate
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Check if pytest is installed
+        run: |
+          source venv/bin/activate
+          python -m pip show pytest
+
   test:
-    name: test
+    name: Run Tests
     runs-on: ubuntu-latest
     needs: setup
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+
+      - name: Create and Activate Virtual Environment
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Check if pytest is installed
+        run: |
+          source venv/bin/activate
+          python -m pip show pytest
 
       - name: Run Tests
         run: pytest
