@@ -5,7 +5,7 @@ FROM python:3.12.0-slim
 WORKDIR /app
 
 # Install system dependencies and nginx
-RUN apt-get update && apt-get install -y nginx && apt-get clean && nginx -v
+RUN apt-get update && apt-get install -y nginx curl && apt-get clean && nginx -v
 
 # Copy the requirements.txt
 COPY requirements.txt .
