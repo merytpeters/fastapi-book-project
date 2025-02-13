@@ -1,4 +1,4 @@
 # start.sh
-service nginx start
-sleep 5  # Wait a few seconds for Nginx to start
+# Start Nginx in the foreground
+nginx -g 'daemon off;' &
 uvicorn app.main:app --host 0.0.0.0 --port $PORT
