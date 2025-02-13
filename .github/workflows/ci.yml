@@ -53,4 +53,4 @@ jobs:
           python -m pip show pytest
 
       - name: Run Tests
-        run: pytest
+        run: pytest --maxfail=1 --disable-warnings --strict
